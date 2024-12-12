@@ -1,13 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace Selection_Counter
 {
     internal class Program
     {
-        static string FilePath;
+        static string? FilePath;
 
         static void Main(string[] args)
         {
