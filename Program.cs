@@ -1,33 +1,37 @@
-﻿using System.Xml.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Xml.Linq;
 
 namespace Selection_Counter
 {
     internal class Program
     {
-        static string? FilePath;
-
         static void Main(string[] args)
         {
             if (args.Length == 0) Error("Не был передан SVG файл");
 
-            FilePath = args[0];
+            string filePath = args[0];
 
-            if (Path.GetExtension(FilePath).ToLower() != ".svg") Error("Переданный файл не является SVG");
+            if (Path.GetExtension(filePath).ToLower() != ".svg") Error("Переданный файл не является SVG");
 
             try
             {
-                XDocument xml = XDocument.Load(FilePath);
+                XDocument xml = XDocument.Load(filePath);
 
                 if (xml.Root == null || xml.Root.Name.LocalName != "svg") Error("Неподходящее содержимое файла");
 
                 foreach (XElement element in xml.Root.Elements())
                 {
-                    if (element.Attribute("id").ToString().ToLower().Contains("selection"))
+                    XAttribute? id = element.Attribute("id");
+
+                    if (id != null)
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write(element.Attribute("id").ToString().Replace("id=", ""));
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write($" {element.Elements().Count()} \n");
+                        if (id.ToString().ToLower().Contains("selection"))
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write(id.ToString().Replace("id=", ""));
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write($" {element.Elements().Count()} \n");
+                        }
                     }
                 }
 
@@ -39,12 +43,13 @@ namespace Selection_Counter
             }
         }
 
-        static void Error(string message)
+        [DoesNotReturn]
+        private static void Error(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Ошибка: {message}");
             Console.ReadLine();
-            return;
+            Environment.Exit(1);
         }
     }
 }
